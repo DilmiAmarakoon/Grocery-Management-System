@@ -1,42 +1,76 @@
- # 🛒 Grocery Management System
+# 🛒 Grocery Management System
 
-A full-stack grocery shopping app built for the **Year 2, Semester 2 Web and Mobile Technology group project at SLIIT**. Customers can browse stores, order groceries, and track deliveries. Administrators manage the catalog, orders, payments, and support requests from a separate dashboard.
+A full-stack mobile application developed for the **Year 2, Semester 2 Web and Mobile Technology group project at SLIIT**. Customers can browse stores, order groceries, and track deliveries. Administrators use a separate dashboard to manage stores, products, orders, payments, and support requests.
+
+## Stakeholders
+
+| Stakeholder | Role in the system |
+| --- | --- |
+| Customers | Browse stores and products, manage their cart, place orders, choose a payment method, track deliveries, and request support. |
+| Store administrators | Maintain store information, product listings, and prices. |
+| Order and delivery administrators | Review incoming orders and update order and delivery statuses. |
+| Payment and support administrators | Review payment records and respond to support tickets. |
+
+The application has two account roles, **Customer** and **Admin**. The administrative responsibilities above are handled through the Admin dashboard.
 
 ## Features
 
-| Customer app | Admin dashboard |
+| Area | Customer app | Admin dashboard |
+| --- | --- | --- |
+| Stores and products | Browse stores and view product details and prices. | Manage store records, products, and prices. |
+| Cart and orders | Add products to a cart, place orders, and view order history. | Review orders and update their status. |
+| Payments | Choose Stripe card payment, bank transfer, or cash on delivery. View payment history. | Review payment records. |
+| Delivery tracking | Check delivery progress from the app. | Post tracking updates. |
+| Support | Submit support tickets. | Review and respond to tickets. |
+
+Authentication uses **JWT** and **bcrypt** password hashing. Password resets use one-time codes sent by email through Nodemailer.
+
+## How an order moves through the system
+
+1. A customer selects a store and adds products to the cart.
+2. The customer places the order and chooses a payment method.
+3. An administrator reviews the order and posts status and delivery updates.
+4. The customer follows the updates from the order history and can submit a support ticket if needed.
+
+## My contribution
+
+**Dilmi Amarakoon** developed the product-entry and pricing-list functionality, which allows products to be added to the store catalog and their prices displayed.
+
+## Tech stack and architecture
+
+| Layer | Technology |
 | --- | --- |
-| Browse stores and products, and view product details | Manage stores and product listings |
-| Add products to a cart and place orders | View orders and update their status |
-| Pay by Stripe card, online transfer, or cash on delivery | Review payment records |
-| View order and payment history, and track deliveries | Manage delivery tracking updates |
-| Submit support requests | Review and respond to support tickets |
+| Mobile app | React Native, Expo, React Navigation, Context API, Axios, AsyncStorage |
+| REST API | Node.js and Express |
+| Database | MongoDB and Mongoose |
+| Integrations | Stripe for card payments, Nodemailer for email OTPs, and Multer for file uploads |
 
-The app uses JWT-based authentication, bcrypt password hashing, and email OTPs for password resets.
+The mobile app sends requests to the Express REST API. The API handles application logic and reads or writes records in MongoDB through Mongoose.
 
-## Tech stack
+## Repository structure
 
-| Layer | Technologies |
+| Path | Contents |
 | --- | --- |
-| Mobile app | React Native, Expo SDK 54, React Navigation, Context API, Axios, AsyncStorage |
-| REST API | Node.js, Express |
-| Database | MongoDB, Mongoose |
-| Integrations | Stripe, Nodemailer, Multer |
+| [`frontend/src/screens/`](frontend/src/screens/) | Authentication, customer, and admin screens |
+| [`frontend/src/navigation/`](frontend/src/navigation/) | App navigation |
+| [`frontend/src/config/api.js`](frontend/src/config/api.js) | Backend URL configuration |
+| [`backend/routes/`](backend/routes/) | Endpoints for authentication, stores, products, orders, payments, tracking, and support |
+| [`backend/controllers/`](backend/controllers/) | Request handling and application logic |
+| [`backend/models/`](backend/models/) | MongoDB schemas |
+| [`backend/server.js`](backend/server.js) | Express server entry point |
 
 ## Run locally
 
-You’ll need Node.js with npm and a MongoDB connection string. Extract the ZIP and open the folder that contains both `backend` and `frontend`.
+### 1. Install and configure the backend
 
-### 1. Start the backend
+Install Node.js with npm and have a MongoDB connection string ready. Open a terminal in the folder containing both `backend` and `frontend`.
 
-In your first terminal, run:
-
-```bash
+```powershell
 cd backend
 npm install
 ```
 
-Create a `backend/.env` file with your own values:
+Create `backend/.env` with your local settings.
 
 ```dotenv
 PORT=5000
@@ -49,48 +83,44 @@ STRIPE_SECRET_KEY=your_stripe_test_secret_key
 STRIPE_CURRENCY=lkr
 ```
 
-The email settings are used for password reset OTPs. Use Stripe test credentials for local card payment testing. Keep your filled-in `.env` out of GitHub.
+The email values configure password reset OTPs. Use Stripe test credentials for local card payment testing. Keep the filled-in `.env` file out of GitHub.
 
-With the terminal still in `backend`, start the API:
+Start the API from the `backend` folder.
 
-```bash
+```powershell
 npm run dev
 ```
 
-Open [http://localhost:5000](http://localhost:5000) on your computer. The API should return `{"message":"Grocery Management API is running"}`.
+Open [http://localhost:5000](http://localhost:5000) on your computer. The server should return `{"message":"Grocery Management API is running"}`.
 
 ### 2. Connect and start the mobile app
 
-The checked-in [API configuration](frontend/src/config/api.js) points to a Render backend. To use your local backend from a phone, change `SERVER_URL` to your computer’s Wi-Fi IPv4 address and port. Use `ipconfig` on Windows to find the address, and connect both devices to the same Wi-Fi network.
+In [`frontend/src/config/api.js`](frontend/src/config/api.js), set `SERVER_URL` to your computer’s Wi-Fi IPv4 address and backend port.
 
 ```js
 export const SERVER_URL = "http://192.168.1.10:5000";
 ```
 
-Replace `192.168.1.10` with your own address. The app adds `/api` automatically. For card payment testing, set `STRIPE_PUBLISHABLE_KEY` in [frontend/App.js](frontend/App.js) to the publishable test key from the same Stripe account as your backend test secret.
+Replace the sample IP with your own. On Windows, run `ipconfig` to find it. Connect the phone and computer to the same Wi-Fi network. The app appends `/api` to the server URL automatically.
 
-In a second terminal opened at the project root, run:
+For card payment testing, set `STRIPE_PUBLISHABLE_KEY` in [`frontend/App.js`](frontend/App.js) to the matching Stripe test publishable key.
 
-```bash
+Open a second terminal at the project root.
+
+```powershell
 cd frontend
 npm install
 npm start
 ```
 
-Open the app on an Expo-compatible device or emulator. Use an Expo development build if Expo Go cannot load the project’s Stripe native module.
+Open the project on an Expo-compatible device or emulator. If Expo Go cannot load the Stripe native module, use an Expo development build.
 
-### 3. Try the two roles
+### 3. Try both roles
 
-- **Customer:** Register in the app, then browse stores and products. For an empty local database, create a store and products through the admin dashboard first.
-- **Admin:** Review the starter account in [backend/seed-admin.js](backend/seed-admin.js) and set your own credentials before running `node seed-admin.js` from the `backend` folder against your local database.
+- **Admin** · Review [`backend/seed-admin.js`](backend/seed-admin.js), set your own local admin credentials, and run `node seed-admin.js` from `backend` against your local database. Sign in and add a store and a few products.
+- **Customer** · Register through the app, open the store, and place a test order. Use cash on delivery to try the order flow without configuring Stripe.
 
-## Repository structure
+## Academic context
 
-| Location | Contents |
-| --- | --- |
-| [frontend/src/screens](frontend/src/screens/) | Authentication, customer, and administrator screens |
-| [frontend/src/navigation](frontend/src/navigation/) | App navigation |
-| [backend/routes](backend/routes/) | REST endpoints for authentication, products, stores, orders, payments, tracking, and support |
-| [backend/controllers](backend/controllers/) | Request handling and business logic |
-| [backend/models](backend/models/) | MongoDB schemas |
-| [backend/server.js](backend/server.js) | Express server entry point |
+**SLIIT · Web and Mobile Technology · Year 2, Semester 2 · Group project**
+ 
